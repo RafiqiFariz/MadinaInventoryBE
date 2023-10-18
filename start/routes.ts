@@ -34,5 +34,16 @@ Route.post('/register', 'AuthController.register')
 Route.post('/login', 'AuthController.login')
 
 Route.group(() => {
-
+  Route.resource('item-types', 'ItemTypesController').apiOnly().except(['index', 'show'])
+  Route.resource('roles', 'RolesController').apiOnly().except(['index', 'show'])
+  Route.resource('users', 'UsersController').apiOnly().except(['index', 'show'])
+  Route.resource('items', 'ItemsController').apiOnly().except(['index', 'show'])
+  Route.resource('transactions', 'TransactionsController').apiOnly().except(['index', 'show'])
+  Route.resource('reports', 'ReportsController').apiOnly()
 }).middleware('auth')
+
+Route.resource('item-types', 'ItemTypesController').apiOnly().only(['index', 'show'])
+Route.resource('roles', 'RolesController').apiOnly().only(['index', 'show'])
+Route.resource('users', 'UsersController').apiOnly().only(['index', 'show'])
+Route.resource('items', 'ItemsController').apiOnly().only(['index', 'show'])
+Route.resource('transactions', 'TransactionsController').apiOnly().only(['index', 'show'])
