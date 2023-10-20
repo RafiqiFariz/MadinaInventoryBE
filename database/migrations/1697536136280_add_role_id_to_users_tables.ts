@@ -8,7 +8,8 @@ export default class extends BaseSchema {
       table.integer('role_id')
         .unsigned()
         .references('roles.id')
-        .onDelete('CASCADE')
+        .onDelete('RESTRICT')
+        .onUpdate('CASCADE')
     })
   }
 

@@ -1,4 +1,5 @@
 import type {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
+import {bind} from '@adonisjs/route-model-binding'
 import Role from "App/Models/Role"
 import RoleValidator from "App/Validators/RoleValidator"
 
@@ -14,10 +15,12 @@ export default class RolesController {
     response.status(200).json(role)
   }
 
+  @bind()
   public async show({response}: HttpContextContract, role: Role) {
     response.status(200).json(role)
   }
 
+  @bind()
   public async update({request, response}: HttpContextContract, role: Role) {
     const payload = await request.validate(RoleValidator)
     await role.merge(payload).save()
@@ -28,6 +31,7 @@ export default class RolesController {
     })
   }
 
+  @bind()
   public async destroy({response}: HttpContextContract, role: Role) {
     await role.delete()
 

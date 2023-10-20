@@ -1,6 +1,8 @@
 import type {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
-import ItemType from "App/Models/ItemType";
-import ItemTypeValidator from "App/Validators/ItemTypeValidator";
+import {bind} from '@adonisjs/route-model-binding'
+import ItemType from "App/Models/ItemType"
+import ItemTypeValidator from "App/Validators/ItemTypeValidator"
+
 
 export default class ItemTypesController {
   public async index({response}: HttpContextContract) {
@@ -14,10 +16,12 @@ export default class ItemTypesController {
     response.status(200).json(itemType)
   }
 
+  @bind()
   public async show({response}: HttpContextContract, itemType: ItemType) {
     response.status(200).json(itemType)
   }
 
+  @bind()
   public async update({request, response}: HttpContextContract, itemType: ItemType) {
     const payload = await request.validate(ItemTypeValidator)
     await itemType.merge(payload).save()
@@ -28,6 +32,7 @@ export default class ItemTypesController {
     })
   }
 
+  @bind()
   public async destroy({response}: HttpContextContract, itemType: ItemType) {
     await itemType.delete()
 

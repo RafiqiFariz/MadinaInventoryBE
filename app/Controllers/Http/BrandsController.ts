@@ -20,6 +20,7 @@ export default class BrandsController {
     return response.status(200).json(brand)
   }
 
+  @bind()
   public async update({request, response}: HttpContextContract, brand: Brand) {
     const payload = await request.validate(BrandValidator)
     await brand.merge(payload).save()
@@ -30,6 +31,7 @@ export default class BrandsController {
     })
   }
 
+  @bind()
   public async destroy({response}: HttpContextContract, brand: Brand) {
     await brand.delete()
 

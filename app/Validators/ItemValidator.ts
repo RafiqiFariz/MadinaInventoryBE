@@ -5,13 +5,20 @@ export default class ItemValidator {
   constructor(protected ctx: HttpContextContract) {
   }
 
+  public refs = schema.refs({
+    id: this.ctx.params.id
+  })
+
   /*
    * Define schema to validate the "shape", "type", "formatting" and "integrity" of data.
    */
   public schema = schema.create({
-    code: schema.string({trim: true}, [
-      rules.required(),
-      rules.unique({table: 'items', column: 'code'}),
+    code: schema.string.optional({trim: true}, [
+      rules.unique({
+        table: 'items',
+        column: 'code',
+        whereNot: {id: this.refs.id},
+      }),
       rules.maxLength(255),
     ]),
     image: schema.file.optional({
@@ -57,7 +64,6 @@ export default class ItemValidator {
    *
    */
   public messages: CustomMessages = {
-    'code.required': 'Kode barang harus diisi.',
     'code.unique': 'Kode barang sudah terdaftar.',
     'code.maxLength': 'Kode barang maksimal 255 karakter.',
     'image.file.extname': 'Gambar barang harus berupa file gambar.',

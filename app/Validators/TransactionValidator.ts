@@ -24,9 +24,7 @@ export default class TransactionValidator {
     type: schema.enum(['in', 'out'] as const, [
       rules.required(),
     ]),
-    note: schema.string.optional({}, [
-      rules.maxLength(255),
-    ]),
+    note: schema.string.optional({}),
   })
 
   /**
@@ -48,6 +46,5 @@ export default class TransactionValidator {
     'qty.required': 'Jumlah harus diisi.',
     'qty.range': 'Jumlah harus diantara 1 sampai 999999999.',
     'type.required': 'Tipe transaksi harus diisi.',
-    'note.maxLength': 'Catatan maksimal 255 karakter.',
   }
 }

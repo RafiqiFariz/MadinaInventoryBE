@@ -1,6 +1,7 @@
 import type {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
+import {bind} from '@adonisjs/route-model-binding'
 import Transaction from "App/Models/Transaction"
-import TransactionValidator from "App/Validators/TransactionValidator";
+import TransactionValidator from "App/Validators/TransactionValidator"
 
 export default class TransactionsController {
   public async index({response}: HttpContextContract) {
@@ -14,10 +15,12 @@ export default class TransactionsController {
     response.status(200).json(transaction)
   }
 
+  @bind()
   public async show({response}: HttpContextContract, transaction: Transaction) {
     response.status(200).json(transaction)
   }
 
+  @bind()
   public async update({request, response}: HttpContextContract, transaction: Transaction) {
     const payload = await request.validate(TransactionValidator)
     await transaction.merge(payload).save()
@@ -28,6 +31,7 @@ export default class TransactionsController {
     })
   }
 
+  @bind()
   public async destroy({response}: HttpContextContract, transaction: Transaction) {
     await transaction.delete()
 
