@@ -6,9 +6,12 @@ import Application from "@ioc:Adonis/Core/Application"
 import {RequestContract} from '@ioc:Adonis/Core/Request'
 
 export default class ItemsController {
-  public async index({response}: HttpContextContract) {
-    const items = await Item.all()
-    response.status(200).json(items)
+  public async index({request, response}: HttpContextContract) {
+    const page = request.input('page', 1)
+    const limit = 50
+
+    const items = await Item.query().orderBy('id').paginate(page, limit)
+    response.status(200).json(items.queryString(request.qs()))
   }
 
   public async store({request, response}: HttpContextContract) {

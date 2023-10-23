@@ -4,9 +4,12 @@ import Brand from "App/Models/Brand"
 import BrandValidator from "App/Validators/BrandValidator"
 
 export default class BrandsController {
-  public async index({response}: HttpContextContract) {
-    const brands = await Brand.all()
-    return response.status(200).json(brands)
+  public async index({request, response}: HttpContextContract) {
+    const page = request.input('page', 1)
+    const limit = 25
+
+    const brands = await Brand.query().paginate(page, limit)
+    return response.status(200).json(brands.queryString(request.qs()))
   }
 
   public async store({request, response}: HttpContextContract) {

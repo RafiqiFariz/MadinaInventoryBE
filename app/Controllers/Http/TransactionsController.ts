@@ -4,9 +4,12 @@ import Transaction from "App/Models/Transaction"
 import TransactionValidator from "App/Validators/TransactionValidator"
 
 export default class TransactionsController {
-  public async index({response}: HttpContextContract) {
-    const transactions = await Transaction.all()
-    response.status(200).json(transactions)
+  public async index({request, response}: HttpContextContract) {
+    const page = request.input('page', 1)
+    const limit = 25
+
+    const transactions = await Transaction.query().paginate(page, limit)
+    response.status(200).json(transactions.queryString(request.qs()))
   }
 
   public async store({request, response}: HttpContextContract) {
