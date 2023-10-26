@@ -1,9 +1,9 @@
 import type {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
 import {bind} from '@adonisjs/route-model-binding'
 import Item from "App/Models/Item"
-import ItemValidator from "App/Validators/ItemValidator"
+import StoreItemValidator from "App/Validators/StoreItemValidator"
+import UpdateItemValidator from "App/Validators/UpdateItemValidator"
 import Application from "@ioc:Adonis/Core/Application"
-import {RequestContract} from '@ioc:Adonis/Core/Request'
 
 export default class ItemsController {
   public async index({request, response}: HttpContextContract) {
@@ -11,28 +11,29 @@ export default class ItemsController {
     const limit = 50
 
     const items = await Item.query().orderBy('id').paginate(page, limit)
-    response.status(200).json(items.queryString(request.qs()))
+    return response.status(200).json(items.queryString(request.qs()))
   }
 
   public async store({request, response}: HttpContextContract) {
-    const data = await this.extracted(request)
+    const payload = await request.validate(StoreItemValidator)
+    const data = await this.extracted(payload)
 
     const item = await Item.create(data)
-    response.status(200).json(item)
+    return response.status(200).json(item)
   }
 
   @bind()
   public async show({response}: HttpContextContract, item: Item) {
-    response.status(200).json(item)
+    return response.status(200).json(item)
   }
 
   @bind()
   public async update({request, response}: HttpContextContract, item: Item) {
-    const data = await this.extracted(request)
-    item.merge(data)
-    await item.save()
+    const payload = await request.validate(UpdateItemValidator)
+    const data = await this.extracted(payload)
+    await item.merge(data).save()
 
-    response.status(200).json({
+    return response.status(200).json({
       message: "Barang berhasil diubah",
       data: item
     })
@@ -41,12 +42,10 @@ export default class ItemsController {
   @bind()
   public async destroy({response}: HttpContextContract, item: Item) {
     await item.delete()
-    response.status(200).json({message: 'Barang berhasil dihapus.'})
+    return response.status(200).json({message: 'Barang berhasil dihapus.'})
   }
 
-  private async extracted(request: RequestContract) {
-    const payload = await request.validate(ItemValidator)
-
+  private async extracted(payload: any) {
     let data = {}
 
     if (payload.image) {

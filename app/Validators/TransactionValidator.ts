@@ -9,20 +9,17 @@ export default class TransactionValidator {
    * Define schema to validate the "shape", "type", "formatting" and "integrity" of data.
    */
   public schema = schema.create({
-    user_id: schema.number([
-      rules.required(),
-      rules.exists({table: 'users', column: 'id'}),
-    ]),
-    item_id: schema.number([
-      rules.required(),
-      rules.exists({table: 'items', column: 'id'}),
-    ]),
-    qty: schema.number([
-      rules.required(),
-      rules.range(1, 999999999),
-    ]),
-    type: schema.enum(['in', 'out'] as const, [
-      rules.required(),
+    items: schema.array().members(schema.object().members({
+      id: schema.number([
+        rules.required(),
+        rules.exists({table: 'items', column: 'id'}),
+      ]),
+      qty: schema.number([
+        rules.required(),
+      ]),
+    })),
+    payment_method: schema.enum(['tunai', 'non-tunai'] as const, [
+      rules.required()
     ]),
     note: schema.string.optional({}),
   })
@@ -41,10 +38,11 @@ export default class TransactionValidator {
   public messages: CustomMessages = {
     'user_id.required': 'User harus diisi.',
     'user_id.exists': 'User tidak ditemukan.',
-    'item_id.required': 'Barang harus diisi.',
-    'item_id.exists': 'Barang tidak ditemukan.',
-    'qty.required': 'Jumlah harus diisi.',
-    'qty.range': 'Jumlah harus diantara 1 sampai 999999999.',
-    'type.required': 'Tipe transaksi harus diisi.',
+    'items.*.object': 'Items harus berupa array of objects.',
+    'items.*.id.required': 'Barang harus diisi.',
+    'items.*.id.exists': 'Barang tidak ditemukan.',
+    'items.*.qty.required': 'Setiap barang harus memiliki kuantitas.',
+    'payment_method.enum': 'Metode pembayaran harus tunai dan non-tunai.',
+    'payment_method.required': 'Metode pembayaran harus diisi.'
   }
 }

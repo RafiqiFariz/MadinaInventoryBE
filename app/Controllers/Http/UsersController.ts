@@ -1,7 +1,8 @@
 import type {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
 import {bind} from '@adonisjs/route-model-binding'
 import User from "App/Models/User"
-import UserValidator from "App/Validators/UserValidator"
+import StoreUserValidator from "App/Validators/StoreUserValidator"
+import UpdateUserValidator from "App/Validators/UpdateUserValidator"
 
 export default class UsersController {
   public async index({request, response}: HttpContextContract) {
@@ -13,7 +14,7 @@ export default class UsersController {
   }
 
   public async store({request, response}: HttpContextContract) {
-    const payload = await request.validate(UserValidator)
+    const payload = await request.validate(StoreUserValidator)
     payload['role_id'] = payload['role_id'] ?? 2 // karyawan
     const user = await User.create(payload)
     return response.status(200).json(user)
@@ -26,7 +27,7 @@ export default class UsersController {
 
   @bind()
   public async update({request, response}: HttpContextContract, user: User) {
-    const payload = await request.validate(UserValidator)
+    const payload = await request.validate(UpdateUserValidator)
     await user.merge(payload).save()
 
     return response.status(200).json({

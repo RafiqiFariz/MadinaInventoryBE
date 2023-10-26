@@ -25,7 +25,7 @@ Route.get('/', async () => {
     name: 'API Madina Inventory App',
     version: '1.0',
     description: 'API Madina Inventory App v1',
-    documentation: '',
+    documentation: 'https://bit.ly/API-Inventory-App',
     status: 200,
   }
 })

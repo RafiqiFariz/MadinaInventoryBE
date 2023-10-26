@@ -7,18 +7,18 @@ import ItemTypeValidator from "App/Validators/ItemTypeValidator"
 export default class ItemTypesController {
   public async index({response}: HttpContextContract) {
     const itemTypes = await ItemType.all()
-    response.status(200).json(itemTypes)
+    return response.status(200).json(itemTypes)
   }
 
   public async store({request, response}: HttpContextContract) {
     const payload = await request.validate(ItemTypeValidator)
     const itemType = await ItemType.create(payload)
-    response.status(200).json(itemType)
+    return response.status(200).json(itemType)
   }
 
   @bind()
   public async show({response}: HttpContextContract, itemType: ItemType) {
-    response.status(200).json(itemType)
+    return response.status(200).json(itemType)
   }
 
   @bind()
@@ -26,7 +26,7 @@ export default class ItemTypesController {
     const payload = await request.validate(ItemTypeValidator)
     await itemType.merge(payload).save()
 
-    response.status(200).json({
+    return response.status(200).json({
       message: "Tipe barang berhasil diubah",
       data: itemType
     })
@@ -36,6 +36,6 @@ export default class ItemTypesController {
   public async destroy({response}: HttpContextContract, itemType: ItemType) {
     await itemType.delete()
 
-    response.status(200).json({message: "Tipe barang berhasil dihapus"})
+    return response.status(200).json({message: "Tipe barang berhasil dihapus"})
   }
 }
