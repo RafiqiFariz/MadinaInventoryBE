@@ -1,44 +1,88 @@
 import type {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
 import Transaction from "App/Models/Transaction"
+import TransactionDetail from "App/Models/TransactionDetail"
 import Item from "App/Models/Item"
-import {DateTime} from "luxon";
+import {DateTime} from "luxon"
 
 export default class DashboardController {
-  public async index({response}: HttpContextContract) {
+  public async index({request, response}: HttpContextContract) {
+    const filter = request.input('filter', 'today')
+
+    let result: any = {}
+    let start: any = null
+    let end: any = null
+
     // Dapatkan tanggal hari ini
     const today = DateTime.local()
 
-    // Rentang waktu
-    const startDate = today.startOf('day').toString()
-    const endDate = today.endOf('day').toString()
+    if (filter === 'today') {
+      start = today.startOf('day').toString()
+      end = today.endOf('day').toString()
+      result = await this.getData(start, end)
+    } else if (filter === 'this_week') {
+      start = today.startOf('week').toString()
+      end = today.endOf('week').toString()
+      result = await this.getData(start, end)
+    } else if (filter === 'last_week') {
+      start = today.minus({weeks: 1}).startOf('week').toString()
+      end = today.minus({weeks: 1}).endOf('week').toString()
+      result = await this.getData(start, end)
+    } else if (filter === 'this_month') {
+      start = today.startOf('month').toString()
+      end = today.endOf('month').toString()
+      result = await this.getData(start, end)
+    } else if (filter === 'last_3_month') {
+      start = today.minus({months: 3}).startOf('month').toString()
+      end = today.minus({months: 3}).endOf('month').toString()
+      result = await this.getData(start, end)
+    } else if (filter === 'last_6_month') {
+      start = today.minus({months: 6}).startOf('month').toString()
+      end = today.minus({months: 6}).endOf('month').toString()
+      console.log(start, end)
+      result = await this.getData(start, end)
+    } else if (filter === 'this_year') {
+      start = today.startOf('year').toString()
+      end = today.endOf('year').toString()
+      result = await this.getData(start, end)
+    }
 
-    // Penjualan hari ini
-    let salesToday: any = await Transaction.query()
-      .whereBetween('created_at', [startDate, endDate])
-      .sum('total_price as total_sales_today')
+    return response.json(result)
+  }
+
+  private async getData(start: string, end: string) {
+    const transQuery = Transaction.query()
+    const transDetailQuery = TransactionDetail.query()
+    const itemQuery = Item.query()
+
+    // Income didapatkan dari total harga transaksi yang type nya out (penjualan)
+    const income: any = await transDetailQuery
+      .whereBetween('created_at', [start, end])
+      .where('type', 'out')
+      .sum('total_price as income')
       .first()
 
-    salesToday = salesToday.$extras.total_sales_today ?? 0
+    // Expense didapatkan dari total harga transaksi yang type nya in (pembelian)
+    const expense: any = await transDetailQuery
+      .whereBetween('created_at', [start, end])
+      .where('type', 'in')
+      .sum('total_price as expense')
+      .first()
 
-    // Penjualan minggu ini
-    const startOfWeek = today.startOf('week').toString()
-    const endOfWeek = today.endOf('week').toString()
-    console.log(startOfWeek, endOfWeek)
-    // const salesThisWeek = await Transaction.query()
-    //   .whereBetween('created_at', [startOfWeek, endOfWeek])
-    //   .sum('total_price as totalSales')
+    const totalStock: any = await itemQuery
+      .whereBetween('created_at', [start, end])
+      .sum('stock as total_stock')
+      .first()
 
-    // Anda dapat melanjutkan dengan menghitung penjualan untuk rentang waktu lainnya
+    const totalSales: any = await transQuery
+      .whereBetween('created_at', [start, end])
+      .sum('total_price as total_sales')
+      .first()
 
-    // Menghitung total stok barang
-    const totalStock = await Item.query().sum('stock as totalStock')
-
-    // Menghitung total pengeluaran (expense)
-
-    response.json({
-      sales_today: +salesToday,
-      // salesThisWeek,
-      totalStock,
-    })
+    return {
+      income: +income.$extras.income ?? 0,
+      expense: +expense.$extras.expense ?? 0,
+      total_stock: +totalStock.$extras.total_stock ?? 0,
+      total_sales: +totalSales.$extras.total_sales ?? 0,
+    }
   }
 }
