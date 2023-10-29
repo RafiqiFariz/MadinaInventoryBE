@@ -8,6 +8,7 @@ export default class extends BaseSchema {
       table.increments('id').primary()
       table.integer('user_id').unsigned().references('users.id').onDelete('CASCADE')
       table.enum('payment_method', ['tunai', 'non-tunai'])
+      table.decimal('total_price', 12, 0)
       table.text('note').nullable()
       table.timestamp('created_at', {useTz: true})
       table.timestamp('updated_at', {useTz: true})

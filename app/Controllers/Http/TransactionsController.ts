@@ -8,9 +8,39 @@ import Database from '@ioc:Adonis/Lucid/Database'
 export default class TransactionsController {
   public async index({request, response}: HttpContextContract) {
     const page = request.input('page', 1)
-    const limit = 25
+    const limit = request.input('limit', 25)
 
-    const transactions = await Transaction.query().paginate(page, limit)
+    const sort = request.input('sort', 'asc')
+    const paymentMethod = request.input('payment_method', '')
+    const type = request.input('type', '')
+    const date = request.input('date', '')
+    const includeUser = request.input('include_user', 0)
+
+    const query =
+      Transaction.query()
+        .preload('details')
+
+    if (+(includeUser) === 1) {
+      query.preload('user')
+    }
+
+    if (paymentMethod) {
+      query.where('payment_method', paymentMethod)
+    }
+
+    if (type) {
+      query.whereHas('details', (query) => {
+        query.where('type', type)
+      })
+    }
+
+    if (date) {
+      query.where('created_at', date)
+    }
+
+    query.orderBy('id', sort)
+
+    const transactions = await query.paginate(page, limit)
     return response.status(200).json(transactions.queryString(request.qs()))
   }
 
@@ -28,19 +58,22 @@ export default class TransactionsController {
       const details: any = [];
 
       for (const item of payload.items) {
+        const itemDB = await Item.findOrFail(item.id, {client: trx})
+        const stock = itemDB.stock + item.qty
+        await itemDB.merge({stock}).save()
+
         details.push({
           transaction_id: transaction.id,
           item_id: item.id,
           qty: item.qty,
-          type: item.qty > 0 ? 'in' : 'out'
+          type: item.qty > 0 ? 'in' : 'out',
+          total_price: itemDB.price * Math.abs(item.qty)
         })
-
-        const itemDB = await Item.findOrFail(item.id, {client: trx})
-        const stock = itemDB.stock + item.qty
-        await itemDB.merge({stock}).save()
       }
 
       await transaction.related('details').createMany(details)
+      const sumTotalPrice = details.reduce((acc: number, curr: any) => acc + +(curr.total_price), 0)
+      await transaction.merge({total_price: sumTotalPrice}).save()
 
       return response.status(200).json(transaction)
     })
@@ -60,24 +93,27 @@ export default class TransactionsController {
 
     try {
       await transaction.merge(request.except(['items'])).save()
-      const details: any = [];
 
       for (const item of payload.items) {
-        details.push({
-          itemId: item.id,
-          qty: item.qty,
-          type: item.qty > 0 ? 'in' : 'out'
-        })
-
+        // pastikan item yang diinput ada di database
         const itemDB = await Item.find(item.id, {client: trx})
 
         if (!itemDB) continue
 
-        const detail =
+        let detail =
           await transaction.related('details')
             .query()
             .where('item_id', item.id)
-            .firstOrFail()
+            .first()
+
+        if (!detail) {
+          detail = await transaction.related('details').create({
+            itemId: item.id,
+            qty: item.qty,
+            type: item.qty > 0 ? 'in' : 'out',
+            total_price: itemDB.price * Math.abs(item.qty)
+          })
+        }
 
         // cek apakah ada perubahan qty
         let stock = 0
@@ -96,10 +132,18 @@ export default class TransactionsController {
           stock = itemDB.stock
         }
 
-        await itemDB.merge({stock}).save()
-      }
+        await detail.merge({
+          qty: item.qty,
+          type: item.qty > 0 ? 'in' : 'out',
+          total_price: itemDB.price * Math.abs(item.qty)
+        }).save()
 
-      await transaction.related('details').updateOrCreateMany(details, 'itemId')
+        await itemDB.merge({stock}).save()
+
+        const details = await transaction.related('details').query()
+        const totalPrice = details.reduce((acc: number, curr: any) => acc + +(curr.total_price), 0)
+        await transaction.merge({total_price: totalPrice}).save()
+      }
 
       await trx.commit()
 
@@ -108,6 +152,7 @@ export default class TransactionsController {
         data: transaction
       })
     } catch (error) {
+      console.log(error)
       await trx.rollback()
     }
   }

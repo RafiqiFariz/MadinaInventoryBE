@@ -20,6 +20,9 @@ export default class TransactionDetail extends BaseModel {
   @column()
   public type: 'in' | 'out'
 
+  @column()
+  public total_price: number
+
   @column.dateTime({autoCreate: true})
   public createdAt: DateTime
 

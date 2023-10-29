@@ -13,6 +13,13 @@ export default class TransactionDetailValidator {
       rules.required(),
       rules.exists({table: 'transactions', column: 'id'}),
     ]),
+    itemId: schema.number([
+      rules.required(),
+      rules.exists({table: 'items', column: 'id'}),
+    ]),
+    qty: schema.number([
+      rules.required(),
+    ]),
   })
 
   /**
@@ -26,5 +33,11 @@ export default class TransactionDetailValidator {
    * }
    *
    */
-  public messages: CustomMessages = {}
+  public messages: CustomMessages = {
+    'transactionId.required': 'Transaksi harus diisi.',
+    'transactionId.exists': 'Transaksi tidak ditemukan.',
+    'itemId.required': 'Barang harus diisi.',
+    'itemId.exists': 'Barang tidak ditemukan.',
+    'qty.required': 'Kuantitas harus diisi.',
+  }
 }

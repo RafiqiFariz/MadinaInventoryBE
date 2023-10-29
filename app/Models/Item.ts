@@ -1,5 +1,8 @@
 import {DateTime} from 'luxon'
-import {BaseModel, column} from '@ioc:Adonis/Lucid/Orm'
+import {BaseModel, column, BelongsTo} from '@ioc:Adonis/Lucid/Orm'
+import {belongsTo} from "@adonisjs/lucid/build/src/Orm/Decorators";
+import ItemType from "App/Models/ItemType";
+import Brand from "App/Models/Brand";
 
 export default class Item extends BaseModel {
   @column({isPrimary: true})
@@ -37,4 +40,10 @@ export default class Item extends BaseModel {
 
   @column.dateTime({autoCreate: true, autoUpdate: true})
   public updatedAt: DateTime
+
+  @belongsTo(() => Brand)
+  public brand: BelongsTo<typeof Brand>
+
+  @belongsTo(() => ItemType)
+  public type: BelongsTo<typeof ItemType>
 }

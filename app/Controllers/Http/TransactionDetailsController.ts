@@ -13,7 +13,7 @@ export default class TransactionDetailsController {
   }
 
   public async store({request, response}: HttpContextContract) {
-    const payload = request.validate(TransactionDetailValidator)
+    const payload = await request.validate(TransactionDetailValidator)
     const detail = await TransactionDetail.create(payload)
     return response.status(200).json(detail)
   }
@@ -23,7 +23,15 @@ export default class TransactionDetailsController {
     return response.status(200).json(detail)
   }
 
-  public async update({}: HttpContextContract, detail: TransactionDetail) {
+  @bind()
+  public async update({request, response}: HttpContextContract, detail: TransactionDetail) {
+    const payload = await request.validate(TransactionDetailValidator)
+    await detail.merge(payload).save()
+
+    return response.status(200).json({
+      message: "Detail transaksi berhasil diubah",
+      data: detail
+    })
   }
 
   public async destroy({response}: HttpContextContract, detail: TransactionDetail) {

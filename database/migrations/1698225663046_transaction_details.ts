@@ -16,6 +16,7 @@ export default class extends BaseSchema {
         .onDelete('RESTRICT')
       table.integer('qty')
       table.enum('type', ['in', 'out'])
+      table.decimal('total_price', 12, 0)
       table.timestamp('created_at', {useTz: true})
       table.timestamp('updated_at', {useTz: true})
     })

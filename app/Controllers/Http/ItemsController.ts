@@ -8,9 +8,25 @@ import Application from "@ioc:Adonis/Core/Application"
 export default class ItemsController {
   public async index({request, response}: HttpContextContract) {
     const page = request.input('page', 1)
-    const limit = 50
+    const limit = request.input('limit', 50)
 
-    const items = await Item.query().orderBy('id').paginate(page, limit)
+    const brands = request.input('brands', '')
+    const types = request.input('types', '')
+    const sort = request.input('sort', 'asc')
+
+    const query = Item.query().preload('brand').preload('type')
+
+    if (brands) {
+      query.whereIn('brand_id', brands.split(','))
+    }
+
+    if (types) {
+      query.whereIn('item_type_id', types.split(','))
+    }
+
+    query.orderBy('id', sort)
+
+    const items = await query.paginate(page, limit)
     return response.status(200).json(items.queryString(request.qs()))
   }
 
