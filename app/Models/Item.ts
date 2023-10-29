@@ -15,10 +15,10 @@ export default class Item extends BaseModel {
   public name: string
 
   @column()
-  public brand_id: number
+  public brandId: number
 
   @column()
-  public item_type_id: number
+  public itemTypeId: number
 
   @column()
   public price: number

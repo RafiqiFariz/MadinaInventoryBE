@@ -40,6 +40,10 @@ export default class ItemsController {
 
   @bind()
   public async show({response}: HttpContextContract, item: Item) {
+    await item.load((loader) => {
+      loader.load('brand').load('type')
+    })
+
     return response.status(200).json(item)
   }
 

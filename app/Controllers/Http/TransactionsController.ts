@@ -81,6 +81,10 @@ export default class TransactionsController {
 
   @bind()
   public async show({response}: HttpContextContract, transaction: Transaction) {
+    await transaction.load((loader) => {
+      loader.load('details').load('user')
+    })
+
     return response.status(200).json(transaction)
   }
 
