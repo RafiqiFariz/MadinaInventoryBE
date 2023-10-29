@@ -49,6 +49,7 @@ export default class UpdateItemValidator {
     stock_min: schema.number.optional([
       rules.range(0, 999999999),
     ]),
+    size: schema.string.optional(),
     description: schema.string.optional(),
   })
 

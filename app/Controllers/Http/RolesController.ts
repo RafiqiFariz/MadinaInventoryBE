@@ -4,9 +4,15 @@ import Role from "App/Models/Role"
 import RoleValidator from "App/Validators/RoleValidator"
 
 export default class RolesController {
-  public async index({response}: HttpContextContract) {
-    const roles = await Role.all()
-    response.status(200).json(roles)
+  public async index({request, response}: HttpContextContract) {
+    const roles = Role.query()
+    const includeUsers = +(request.input('include_users', 0))
+
+    if (includeUsers === 1) {
+      roles.preload('users')
+    }
+
+    response.status(200).json(await roles)
   }
 
   public async store({request, response}: HttpContextContract) {
@@ -16,7 +22,13 @@ export default class RolesController {
   }
 
   @bind()
-  public async show({response}: HttpContextContract, role: Role) {
+  public async show({request, response}: HttpContextContract, role: Role) {
+    const includeUsers = +(request.input('include_users', 0))
+
+    if (includeUsers === 1) {
+      await role.load('users')
+    }
+
     response.status(200).json(role)
   }
 

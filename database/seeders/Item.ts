@@ -15,6 +15,7 @@ export default class ItemSeeder extends BaseSeeder {
         price: 10000,
         stock: 100,
         stock_min: 5,
+        size: '10mm x 12m'
       },
       {
         code: 'BESI-002',
@@ -25,6 +26,7 @@ export default class ItemSeeder extends BaseSeeder {
         price: 12000,
         stock: 100,
         stock_min: 5,
+        size: '12mm x 12m'
       },
       {
         code: 'BESI-003',
@@ -35,6 +37,7 @@ export default class ItemSeeder extends BaseSeeder {
         price: 16000,
         stock: 100,
         stock_min: 5,
+        size: '16mm x 12m'
       },
       {
         code: 'CAT-001',
@@ -44,6 +47,7 @@ export default class ItemSeeder extends BaseSeeder {
         price: 50000,
         stock: 100,
         stock_min: 5,
+        size: '5 KG'
       },
       {
         code: 'CAT-002',
@@ -53,6 +57,7 @@ export default class ItemSeeder extends BaseSeeder {
         price: 100000,
         stock: 100,
         stock_min: 5,
+        size: '10 KG'
       }
     ]);
   }

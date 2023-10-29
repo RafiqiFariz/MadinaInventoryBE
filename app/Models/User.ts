@@ -20,7 +20,7 @@ export default class User extends BaseModel {
   public phone_number: string
 
   @column()
-  public role_id: number
+  public roleId: number
 
   @column.dateTime({autoCreate: true})
   public createdAt: DateTime

@@ -9,7 +9,7 @@ export default class UsersController {
     const page = request.input('page', 1)
     const limit = 25
 
-    const users = await User.query().paginate(page, limit)
+    const users = await User.query().preload('role').paginate(page, limit)
     return response.status(200).json(users.queryString(request.qs()))
   }
 
@@ -22,6 +22,7 @@ export default class UsersController {
 
   @bind()
   public async show({response}: HttpContextContract, user: User) {
+    await user.load('role')
     return response.status(200).json(user)
   }
 

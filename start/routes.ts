@@ -34,6 +34,7 @@ Route.post('/register', 'AuthController.register')
 Route.post('/login', 'AuthController.login')
 
 Route.group(() => {
+  Route.get('/dashboard', 'DashboardController.index')
   Route.resource('item-types', 'ItemTypesController').apiOnly().except(['index', 'show'])
   Route.resource('roles', 'RolesController').apiOnly().except(['index', 'show'])
   Route.resource('users', 'UsersController').apiOnly().except(['index', 'show'])

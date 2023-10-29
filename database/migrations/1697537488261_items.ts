@@ -12,6 +12,7 @@ export default class extends BaseSchema {
       table.decimal('price', 10, 0)
       table.integer('stock')
       table.integer('stock_min').nullable()
+      table.string('size').nullable()
       table.text('description').nullable()
       table.integer('item_type_id')
         .unsigned()

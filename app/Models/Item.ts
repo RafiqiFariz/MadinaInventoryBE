@@ -27,6 +27,9 @@ export default class Item extends BaseModel {
   public stock: number
 
   @column()
+  public size: string
+
+  @column()
   public description: string
 
   @column()
