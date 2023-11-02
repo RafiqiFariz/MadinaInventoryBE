@@ -30,7 +30,11 @@ export default class ItemsController {
     return response.status(200).json(items.queryString(request.qs()))
   }
 
-  public async store({request, response}: HttpContextContract) {
+  public async store({request, response, bouncer}: HttpContextContract) {
+    await bouncer
+      .with('ItemPolicy')
+      .authorize('create')
+
     const payload = await request.validate(StoreItemValidator)
     const data = await this.extracted(payload)
 
@@ -48,7 +52,11 @@ export default class ItemsController {
   }
 
   @bind()
-  public async update({request, response}: HttpContextContract, item: Item) {
+  public async update({request, response, bouncer}: HttpContextContract, item: Item) {
+    await bouncer
+      .with('ItemPolicy')
+      .authorize('update')
+
     const payload = await request.validate(UpdateItemValidator)
     const data = await this.extracted(payload)
     await item.merge(data).save()
@@ -60,7 +68,11 @@ export default class ItemsController {
   }
 
   @bind()
-  public async destroy({response}: HttpContextContract, item: Item) {
+  public async destroy({response, bouncer}: HttpContextContract, item: Item) {
+    await bouncer
+      .with('ItemPolicy')
+      .authorize('delete')
+
     await item.delete()
     return response.status(200).json({message: 'Barang berhasil dihapus.'})
   }

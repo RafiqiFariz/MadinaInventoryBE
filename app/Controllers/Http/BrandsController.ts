@@ -12,7 +12,11 @@ export default class BrandsController {
     return response.status(200).json(brands.queryString(request.qs()))
   }
 
-  public async store({request, response}: HttpContextContract) {
+  public async store({request, response, bouncer}: HttpContextContract) {
+    await bouncer
+      .with('BrandPolicy')
+      .authorize('create')
+
     const payload = await request.validate(BrandValidator)
     const brand = await Brand.create(payload)
     return response.status(200).json(brand)
@@ -24,7 +28,11 @@ export default class BrandsController {
   }
 
   @bind()
-  public async update({request, response}: HttpContextContract, brand: Brand) {
+  public async update({request, response, bouncer}: HttpContextContract, brand: Brand) {
+    await bouncer
+      .with('BrandPolicy')
+      .authorize('update')
+
     const payload = await request.validate(BrandValidator)
     await brand.merge(payload).save()
 
@@ -35,7 +43,11 @@ export default class BrandsController {
   }
 
   @bind()
-  public async destroy({response}: HttpContextContract, brand: Brand) {
+  public async destroy({response, bouncer}: HttpContextContract, brand: Brand) {
+    await bouncer
+      .with('BrandPolicy')
+      .authorize('delete')
+
     await brand.delete()
 
     return response.status(200).json({message: "Brand berhasil dihapus"})

@@ -1,8 +1,50 @@
-import BaseSeeder from '@ioc:Adonis/Lucid/Seeder'
+import BaseSeeder from '@ioc:Adonis/Lucid/Seeder';
 import Item from "App/Models/Item";
+import Brand from "App/Models/Brand";
+import ItemType from "App/Models/ItemType"
+import {faker} from '@faker-js/faker';
+import {capitalCase} from "capital-case";
 
 export default class ItemSeeder extends BaseSeeder {
   public static environment = ['development', 'testing']
+
+  private generateCode(itemType: string, serialNumber: number) {
+    const acronym = itemType.substring(0, 3).toUpperCase(); // Mengambil tiga karakter pertama dan mengonversi ke huruf besar
+    const paddedSerialNumber = serialNumber.toString().padStart(4, '0'); // Padding angka dengan nol jika kurang dari empat digit
+    return `${acronym}-${paddedSerialNumber}`;
+  }
+
+  private async generateItems() {
+    const brands = await Brand.all()
+
+    for (const brand of brands) {
+      const itemTypes = await ItemType.query().orderByRaw('RAND()').limit(5)
+
+      for (const itemType of itemTypes) {
+        const multiplier = Math.floor(Math.random() * 10) + 1
+        const serialNumber = Math.floor(Math.random() * 10000); // Nomor seri acak dalam rentang 0-9999
+
+        const code = this.generateCode(itemType.name, serialNumber);
+        const name = capitalCase(faker.lorem.word());
+
+        await Item.create({
+          code,
+          image: faker.image.urlPlaceholder({
+            width: 400,
+            height: 400,
+            text: name
+          }),
+          name,
+          brandId: brand.id,
+          itemTypeId: itemType.id,
+          price: 50 * multiplier * 1000,
+          stock: 100,
+          stock_min: 5,
+          size: '10mm x 12m'
+        })
+      }
+    }
+  }
 
   public async run() {
     await Item.createMany([
@@ -59,6 +101,11 @@ export default class ItemSeeder extends BaseSeeder {
         stock_min: 5,
         size: '10 KG'
       }
-    ]);
+    ])
+
+    // 50 x 5 = 250 items
+    for (let i = 0; i < 5; i++) {
+      await this.generateItems()
+    }
   }
 }

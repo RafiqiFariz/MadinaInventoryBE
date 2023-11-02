@@ -10,7 +10,11 @@ export default class ItemTypesController {
     return response.status(200).json(itemTypes)
   }
 
-  public async store({request, response}: HttpContextContract) {
+  public async store({request, response, bouncer}: HttpContextContract) {
+    await bouncer
+      .with('ItemTypePolicy')
+      .authorize('create')
+
     const payload = await request.validate(ItemTypeValidator)
     const itemType = await ItemType.create(payload)
     return response.status(200).json(itemType)
@@ -22,7 +26,11 @@ export default class ItemTypesController {
   }
 
   @bind()
-  public async update({request, response}: HttpContextContract, itemType: ItemType) {
+  public async update({request, response, bouncer}: HttpContextContract, itemType: ItemType) {
+    await bouncer
+      .with('ItemTypePolicy')
+      .authorize('update')
+
     const payload = await request.validate(ItemTypeValidator)
     await itemType.merge(payload).save()
 
@@ -33,7 +41,11 @@ export default class ItemTypesController {
   }
 
   @bind()
-  public async destroy({response}: HttpContextContract, itemType: ItemType) {
+  public async destroy({response, bouncer}: HttpContextContract, itemType: ItemType) {
+    await bouncer
+      .with('ItemTypePolicy')
+      .authorize('delete')
+
     await itemType.delete()
 
     return response.status(200).json({message: "Tipe barang berhasil dihapus"})

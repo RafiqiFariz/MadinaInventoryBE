@@ -1,7 +1,7 @@
 import type {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
-import TransactionDetail from "App/Models/TransactionDetail";
-import {bind} from "@adonisjs/route-model-binding";
-import TransactionDetailValidator from "App/Validators/TransactionDetailValidator";
+import TransactionDetail from "App/Models/TransactionDetail"
+import {bind} from "@adonisjs/route-model-binding"
+import TransactionDetailValidator from "App/Validators/TransactionDetailValidator"
 
 export default class TransactionDetailsController {
   public async index({response, request}: HttpContextContract) {
@@ -24,7 +24,11 @@ export default class TransactionDetailsController {
   }
 
   @bind()
-  public async update({request, response}: HttpContextContract, detail: TransactionDetail) {
+  public async update({request, response, bouncer}: HttpContextContract, detail: TransactionDetail) {
+    await bouncer
+      .with('TransactionDetailPolicy')
+      .authorize('update')
+
     const payload = await request.validate(TransactionDetailValidator)
     await detail.merge(payload).save()
 
@@ -34,7 +38,11 @@ export default class TransactionDetailsController {
     })
   }
 
-  public async destroy({response}: HttpContextContract, detail: TransactionDetail) {
+  public async destroy({response, bouncer}: HttpContextContract, detail: TransactionDetail) {
+    await bouncer
+      .with('TransactionDetailPolicy')
+      .authorize('delete')
+
     await detail.delete()
     return response.status(200).json({message: "Detail transaksi berhasil dihapus"})
   }

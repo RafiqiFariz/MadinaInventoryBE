@@ -4,7 +4,10 @@ import Role from "App/Models/Role"
 import RoleValidator from "App/Validators/RoleValidator"
 
 export default class RolesController {
-  public async index({request, response}: HttpContextContract) {
+  public async index({request, response, bouncer}: HttpContextContract) {
+    await bouncer
+      .with('RolePolicy')
+      .authorize('viewList')
     const roles = Role.query()
     const includeUsers = +(request.input('include_users', 0))
 
@@ -15,14 +18,22 @@ export default class RolesController {
     response.status(200).json(await roles)
   }
 
-  public async store({request, response}: HttpContextContract) {
+  public async store({request, response, bouncer}: HttpContextContract) {
+    await bouncer
+      .with('RolePolicy')
+      .authorize('create')
+
     const payload = await request.validate(RoleValidator)
     const role = await Role.create(payload)
     response.status(200).json(role)
   }
 
   @bind()
-  public async show({request, response}: HttpContextContract, role: Role) {
+  public async show({request, response, bouncer}: HttpContextContract, role: Role) {
+    await bouncer
+      .with('RolePolicy')
+      .authorize('view')
+
     const includeUsers = +(request.input('include_users', 0))
 
     if (includeUsers === 1) {
@@ -33,7 +44,11 @@ export default class RolesController {
   }
 
   @bind()
-  public async update({request, response}: HttpContextContract, role: Role) {
+  public async update({request, response, bouncer}: HttpContextContract, role: Role) {
+    await bouncer
+      .with('RolePolicy')
+      .authorize('update')
+
     const payload = await request.validate(RoleValidator)
     await role.merge(payload).save()
 
@@ -44,7 +59,11 @@ export default class RolesController {
   }
 
   @bind()
-  public async destroy({response}: HttpContextContract, role: Role) {
+  public async destroy({response, bouncer}: HttpContextContract, role: Role) {
+    await bouncer
+      .with('RolePolicy')
+      .authorize('delete')
+
     await role.delete()
 
     response.status(200).json({message: "Role berhasil dihapus"})

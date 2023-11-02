@@ -89,7 +89,11 @@ export default class TransactionsController {
   }
 
   @bind()
-  public async update({request, response}: HttpContextContract, transaction: Transaction) {
+  public async update({request, response, bouncer}: HttpContextContract, transaction: Transaction) {
+    await bouncer
+      .with('TransactionPolicy')
+      .authorize('update')
+
     const payload = await request.validate(TransactionValidator)
     const trx = await Database.transaction()
 
@@ -162,7 +166,11 @@ export default class TransactionsController {
   }
 
   @bind()
-  public async destroy({response}: HttpContextContract, transaction: Transaction) {
+  public async destroy({response, bouncer}: HttpContextContract, transaction: Transaction) {
+    await bouncer
+      .with('TransactionPolicy')
+      .authorize('delete')
+
     // Kembalikan stock barang
     const details = await transaction.related('details').query()
     for (const detail of details) {
