@@ -32,7 +32,8 @@ export default class ItemSeeder extends BaseSeeder {
           image: faker.image.urlPlaceholder({
             width: 400,
             height: 400,
-            text: name
+            text: name,
+            format: 'png'
           }),
           name,
           brandId: brand.id,
