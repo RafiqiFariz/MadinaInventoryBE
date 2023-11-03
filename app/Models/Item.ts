@@ -39,6 +39,9 @@ export default class Item extends BaseModel {
   @column()
   public stock_min: number
 
+  @column()
+  public is_active: boolean
+
   @column.dateTime({autoCreate: true})
   public createdAt: DateTime
 
