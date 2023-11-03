@@ -48,6 +48,14 @@ export default class BrandsController {
       .with('BrandPolicy')
       .authorize('delete')
 
+    const items = await brand.related('items').query()
+
+    if (items.length > 0) {
+      return response.status(409).json({
+        message: "Brand tidak dapat dihapus karena masih memiliki barang."
+      })
+    }
+
     await brand.delete()
 
     return response.status(200).json({message: "Brand berhasil dihapus"})

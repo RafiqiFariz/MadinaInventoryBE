@@ -24,6 +24,7 @@ export default class extends BaseSchema {
         .references('brands.id')
         .onUpdate('CASCADE')
         .onDelete('RESTRICT')
+      table.boolean('is_active').defaultTo(true)
       table.timestamp('created_at', {useTz: true})
       table.timestamp('updated_at', {useTz: true})
     })

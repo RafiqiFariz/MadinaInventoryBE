@@ -60,6 +60,14 @@ export default class TransactionsController {
       for (const item of payload.items) {
         const itemDB = await Item.findOrFail(item.id, {client: trx})
         const stock = itemDB.stock + item.qty
+
+        if (stock < 0) {
+          await trx.rollback()
+          return response.status(400).json({
+            message: `Stok ${itemDB.name} tidak mencukupi`
+          })
+        }
+
         await itemDB.merge({stock}).save()
 
         details.push({
@@ -102,6 +110,8 @@ export default class TransactionsController {
     try {
       await transaction.merge(request.except(['items'])).save()
 
+      await this.destroyDetailIfItemNotExists(transaction, payload)
+
       for (const item of payload.items) {
         // pastikan item yang diinput ada di database
         const itemDB = await Item.find(item.id, {client: trx})
@@ -138,6 +148,14 @@ export default class TransactionsController {
           // maka stock tidak berubah
         } else if (item.qty === detail.qty) {
           stock = itemDB.stock
+        }
+
+        // jika stock kurang dari 0, maka rollback
+        if (stock < 0) {
+          await trx.rollback()
+          return response.status(400).json({
+            message: `Stok ${itemDB.name} tidak mencukupi`
+          })
         }
 
         await detail.merge({
@@ -183,5 +201,22 @@ export default class TransactionsController {
     await transaction.delete()
 
     return response.status(200).json({message: "Transaksi berhasil dihapus"})
+  }
+
+  private async destroyDetailIfItemNotExists(transaction: Transaction, payload: any) {
+    // Ambil semua detail transaksi yang saat ini ada dalam database
+    const existingDetails = await transaction.related('details').query().select('id', 'item_id')
+
+    for (const existingDetail of existingDetails) {
+      const itemInPayload = payload.items.find(item => item.id === existingDetail.itemId)
+
+      // Jika item detail tidak ada dalam payload, maka hapus detail tersebut
+      if (!itemInPayload) {
+        const detail = await transaction.related('details').query().where('id', existingDetail.id).firstOrFail()
+        const detailItem = await Item.findOrFail(detail.itemId)
+        await detailItem.merge({stock: detailItem.stock - detail.qty}).save()
+        await detail.delete()
+      }
+    }
   }
 }

@@ -50,6 +50,7 @@ export default class UpdateItemValidator {
       rules.range(0, 999999999),
     ]),
     size: schema.string.optional(),
+    is_active: schema.boolean.optional(),
     description: schema.string.optional(),
   })
 

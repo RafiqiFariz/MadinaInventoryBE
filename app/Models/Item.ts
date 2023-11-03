@@ -1,8 +1,9 @@
 import {DateTime} from 'luxon'
-import {BaseModel, column, BelongsTo} from '@ioc:Adonis/Lucid/Orm'
-import {belongsTo} from "@adonisjs/lucid/build/src/Orm/Decorators";
-import ItemType from "App/Models/ItemType";
-import Brand from "App/Models/Brand";
+import {BaseModel, column, BelongsTo, hasMany, HasMany} from '@ioc:Adonis/Lucid/Orm'
+import {belongsTo} from "@adonisjs/lucid/build/src/Orm/Decorators"
+import ItemType from "App/Models/ItemType"
+import Brand from "App/Models/Brand"
+import TransactionDetail from "App/Models/TransactionDetail"
 
 export default class Item extends BaseModel {
   @column({isPrimary: true})
@@ -49,4 +50,7 @@ export default class Item extends BaseModel {
 
   @belongsTo(() => ItemType)
   public type: BelongsTo<typeof ItemType>
+
+  @hasMany(() => TransactionDetail)
+  public details: HasMany<typeof TransactionDetail>
 }

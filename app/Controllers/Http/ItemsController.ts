@@ -14,7 +14,7 @@ export default class ItemsController {
     const types = request.input('types', '')
     const sort = request.input('sort', 'asc')
 
-    const query = Item.query().preload('brand').preload('type')
+    const query = Item.query().preload('brand').preload('type').where('is_active', true)
 
     if (brands) {
       query.whereIn('brand_id', brands.split(','))
@@ -72,6 +72,12 @@ export default class ItemsController {
     await bouncer
       .with('ItemPolicy')
       .authorize('delete')
+
+    const details = await item.related('details').query()
+
+    if (details.length > 0) {
+      return response.status(409).json({message: 'Barang tidak dapat dihapus karena sudah digunakan.'})
+    }
 
     await item.delete()
     return response.status(200).json({message: 'Barang berhasil dihapus.'})

@@ -46,6 +46,14 @@ export default class ItemTypesController {
       .with('ItemTypePolicy')
       .authorize('delete')
 
+    const items = await itemType.related('items').query()
+
+    if (items.length > 0) {
+      return response.status(409).json({
+        message: "Tipe barang tidak dapat dihapus karena masih memiliki barang."
+      })
+    }
+
     await itemType.delete()
 
     return response.status(200).json({message: "Tipe barang berhasil dihapus"})
