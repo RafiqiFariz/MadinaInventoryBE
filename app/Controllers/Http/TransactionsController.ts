@@ -1,5 +1,5 @@
-import type {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
-import {bind} from '@adonisjs/route-model-binding'
+import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { bind } from '@adonisjs/route-model-binding'
 import Transaction from "App/Models/Transaction"
 import TransactionValidator from "App/Validators/TransactionValidator"
 import Item from "App/Models/Item"
@@ -50,7 +50,7 @@ export default class TransactionsController {
     await Database.transaction(async (trx) => {
       request.updateBody({
         ...request.body(),
-        user_id: auth.user?.id
+        employee_id: auth.user?.id
       })
 
       const transaction = await Transaction.create(request.except(['items']), {client: trx})
@@ -80,8 +80,12 @@ export default class TransactionsController {
       }
 
       await transaction.related('details').createMany(details)
-      const sumTotalPrice = details.reduce((acc: number, curr: any) => acc + +(curr.total_price), 0)
-      await transaction.merge({total_price: sumTotalPrice}).save()
+      const totalPrice = details.reduce((acc: number, curr: any) => acc + +(curr.total_price), 0)
+      const remainingPayment = totalPrice - request.input('down_payment', 0);
+      await transaction.merge({
+        total_price: totalPrice,
+        remaining_payment: remainingPayment,
+      }).save()
 
       return response.status(200).json(transaction)
     })
@@ -168,7 +172,11 @@ export default class TransactionsController {
 
         const details = await transaction.related('details').query()
         const totalPrice = details.reduce((acc: number, curr: any) => acc + +(curr.total_price), 0)
-        await transaction.merge({total_price: totalPrice}).save()
+        const remainingPayment = totalPrice - request.input('down_payment', 0);
+        await transaction.merge({
+          total_price: totalPrice,
+          remaining_payment: remainingPayment
+        }).save()
       }
 
       await trx.commit()

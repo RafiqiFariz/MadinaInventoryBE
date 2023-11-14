@@ -11,6 +11,9 @@ export default class RoleSeeder extends BaseSeeder {
       },
       {
         name: 'Employee',
+      },
+      {
+        name: 'Customer',
       }
     ]);
   }

@@ -27,6 +27,13 @@ export default class extends BaseSeeder {
         password: await Hash.make('12345678'),
         phone_number: '081234567892',
         roleId: 2,
+      },
+      {
+        name: 'Customer 1',
+        email: 'customer1@gmail.com',
+        password: await Hash.make('12345678'),
+        phone_number: '081212232334',
+        roleId: 3,
       }
     ]);
   }

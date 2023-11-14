@@ -10,13 +10,22 @@ export default class Transaction extends BaseModel {
   public id: number
 
   @column()
-  public userId: number
+  public employeeId: number
+
+  @column()
+  public customerId: number
 
   @column()
   public payment_method: 'tunai' | 'non-tunai'
 
   @column()
   public total_price: number
+
+  @column()
+  public down_payment: number
+
+  @column()
+  public remaining_payment: number
 
   @column()
   public note: string
