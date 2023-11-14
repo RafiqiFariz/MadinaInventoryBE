@@ -35,6 +35,9 @@ export default class UpdateUserValidator {
     phone_number: schema.string.optional({}, [
       rules.maxLength(255),
     ]),
+    role_id: schema.number.optional([
+      rules.exists({table: 'roles', column: 'id'}),
+    ]),
   })
 
   /**
@@ -58,5 +61,7 @@ export default class UpdateUserValidator {
     'password.required': 'Password harus diisi.',
     'password.minLength': 'Password minimal 8 karakter.',
     'password.maxLength': 'Password maksimal 255 karakter.',
+    'phone_number.maxLength': 'Nomor telepon maksimal 255 karakter.',
+    'role_id.exists': 'Role tidak tersedia.',
   }
 }

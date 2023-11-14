@@ -24,7 +24,7 @@ export default class UsersController {
       .authorize('create')
 
     const payload = await request.validate(StoreUserValidator)
-    payload['role_id'] = payload['role_id'] ?? 2 // karyawan
+    payload['role_id'] = payload['role_id'] ?? 3 // customer
     payload['password'] = await Hash.make(payload['password'])
 
     const user = await User.create(payload)
