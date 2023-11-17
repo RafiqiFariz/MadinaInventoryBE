@@ -10,16 +10,12 @@ export default class TransactionDetailValidator {
    */
   public schema = schema.create({
     transactionId: schema.number([
-      rules.required(),
       rules.exists({table: 'transactions', column: 'id'}),
     ]),
     itemId: schema.number([
-      rules.required(),
       rules.exists({table: 'items', column: 'id'}),
     ]),
-    qty: schema.number([
-      rules.required(),
-    ]),
+    qty: schema.number(),
   })
 
   /**

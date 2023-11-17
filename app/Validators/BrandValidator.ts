@@ -10,7 +10,6 @@ export default class BrandValidator {
    */
   public schema = schema.create({
     name: schema.string({}, [
-      rules.required(),
       rules.minLength(2),
       rules.maxLength(255),
       rules.unique({table: 'brands', column: 'name'}),

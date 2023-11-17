@@ -26,24 +26,19 @@ export default class UpdateItemValidator {
       extnames: ['jpg', 'png', 'jpeg'],
     }),
     name: schema.string({}, [
-      rules.required(),
       rules.minLength(3),
       rules.maxLength(255),
     ]),
     brand_id: schema.number([
-      rules.required(),
       rules.exists({table: 'brands', column: 'id'}),
     ]),
     item_type_id: schema.number([
-      rules.required(),
       rules.exists({table: 'item_types', column: 'id'}),
     ]),
     price: schema.number([
-      rules.required(),
       rules.range(0, 999999999),
     ]),
     stock: schema.number([
-      rules.required(),
       rules.range(0, 999999999),
     ]),
     stock_min: schema.number.optional([

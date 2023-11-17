@@ -10,7 +10,6 @@ export default class RoleValidator {
    */
   public schema = schema.create({
     name: schema.string({}, [
-      rules.required(),
       rules.maxLength(255),
       rules.unique({table: 'roles', column: 'name'}),
     ]),

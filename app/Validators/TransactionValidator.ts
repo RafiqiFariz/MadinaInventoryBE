@@ -29,16 +29,11 @@ export default class TransactionValidator {
     ]),
     items: schema.array([rules.minLength(1)]).members(schema.object().members({
       id: schema.number([
-        rules.required(),
         rules.exists({table: 'items', column: 'id'}),
       ]),
-      qty: schema.number([
-        rules.required(),
-      ]),
+      qty: schema.number(),
     })),
-    payment_method: schema.enum(['tunai', 'non-tunai'] as const, [
-      rules.required()
-    ]),
+    payment_method: schema.enum(['tunai', 'non-tunai'] as const),
     down_payment: schema.number.optional(),
     note: schema.string.optional({}),
   })

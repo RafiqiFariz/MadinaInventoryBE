@@ -10,7 +10,6 @@ export default class ItemTypeValidator {
    */
   public schema = schema.create({
     name: schema.string({}, [
-      rules.required(),
       rules.maxLength(255),
     ]),
   })

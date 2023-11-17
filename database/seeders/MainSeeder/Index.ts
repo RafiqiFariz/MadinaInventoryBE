@@ -23,6 +23,5 @@ export default class IndexSeeder extends BaseSeeder {
     await this.runSeeder(await import('../ItemType'))
     await this.runSeeder(await import('../Brand'))
     await this.runSeeder(await import('../Item'))
-
   }
 }

@@ -14,11 +14,9 @@ export default class UpdateUserValidator {
    */
   public schema = schema.create({
     name: schema.string({}, [
-      rules.required(),
       rules.maxLength(255),
     ]),
     email: schema.string({}, [
-      rules.required(),
       rules.email(),
       rules.maxLength(255),
       rules.unique({
@@ -28,7 +26,6 @@ export default class UpdateUserValidator {
       }),
     ]),
     password: schema.string({}, [
-      rules.required(),
       rules.minLength(8),
       rules.maxLength(255),
     ]),
