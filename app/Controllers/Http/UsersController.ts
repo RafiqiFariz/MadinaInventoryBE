@@ -1,5 +1,5 @@
-import type {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
-import {bind} from '@adonisjs/route-model-binding'
+import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { bind } from '@adonisjs/route-model-binding'
 import User from "App/Models/User"
 import StoreUserValidator from "App/Validators/StoreUserValidator"
 import UpdateUserValidator from "App/Validators/UpdateUserValidator"
@@ -51,8 +51,8 @@ export default class UsersController {
     await user.merge(payload).save()
 
     return response.status(200).json({
+      data: user,
       message: "User berhasil diubah",
-      data: user
     })
   }
 
@@ -62,8 +62,21 @@ export default class UsersController {
       .with('UserPolicy')
       .authorize('delete')
 
+    const employeeTransactions = await user.related('employeeTransactions').query()
+    const customerTransactions = await user.related('customerTransactions').query()
+
+    if (employeeTransactions.length > 0 || customerTransactions.length > 0) {
+      return response.status(409).json({
+        success: false,
+        message: `User ${user.name} tidak dapat dihapus karena digunakan pada data transaksi.`
+      })
+    }
+
     await user.delete()
 
-    return response.status(200).json({message: "User berhasil dihapus"})
+    return response.status(200).json({
+      success: true,
+      message: "User berhasil dihapus"
+    })
   }
 }

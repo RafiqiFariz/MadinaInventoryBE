@@ -25,7 +25,7 @@ export default class UpdateUserValidator {
         whereNot: {id: this.refs.id},
       }),
     ]),
-    password: schema.string({}, [
+    password: schema.string.optional({}, [
       rules.minLength(8),
       rules.maxLength(255),
     ]),

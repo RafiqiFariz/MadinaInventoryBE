@@ -30,6 +30,8 @@ export default class extends BaseSeeder {
       },
       {
         name: 'Customer 1',
+        email: 'customer1@gmail.com',
+        password: await Hash.make('12345678'),
         phone_number: '081212232334',
         roleId: 3,
       }

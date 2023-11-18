@@ -1,7 +1,8 @@
 import {DateTime} from 'luxon'
-import {BaseModel, column, BelongsTo} from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, BelongsTo, hasMany, HasMany } from '@ioc:Adonis/Lucid/Orm'
 import Role from "App/Models/Role";
 import {belongsTo} from "@adonisjs/lucid/build/src/Orm/Decorators";
+import Transaction from "App/Models/Transaction";
 
 export default class User extends BaseModel {
   @column({isPrimary: true})
@@ -30,4 +31,14 @@ export default class User extends BaseModel {
 
   @belongsTo(() => Role)
   public role: BelongsTo<typeof Role>
+
+  @hasMany(() => Transaction, {
+    foreignKey: 'employeeId',
+  })
+  public employeeTransactions: HasMany<typeof Transaction>
+
+  @hasMany(() => Transaction, {
+    foreignKey: 'customerId',
+  })
+  public customerTransactions: HasMany<typeof Transaction>
 }

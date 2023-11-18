@@ -1,5 +1,5 @@
-import type {HttpContextContract} from '@ioc:Adonis/Core/HttpContext'
-import {bind} from '@adonisjs/route-model-binding'
+import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { bind } from '@adonisjs/route-model-binding'
 import Item from "App/Models/Item"
 import StoreItemValidator from "App/Validators/StoreItemValidator"
 import UpdateItemValidator from "App/Validators/UpdateItemValidator"
@@ -62,8 +62,8 @@ export default class ItemsController {
     await item.merge(data).save()
 
     return response.status(200).json({
+      data: item,
       message: "Barang berhasil diubah",
-      data: item
     })
   }
 
@@ -76,11 +76,17 @@ export default class ItemsController {
     const details = await item.related('details').query()
 
     if (details.length > 0) {
-      return response.status(409).json({message: 'Barang tidak dapat dihapus karena sudah digunakan.'})
+      return response.status(409).json({
+        success: false,
+        message: `Barang ${item.id} tidak dapat dihapus karena sudah digunakan.`
+      })
     }
 
     await item.delete()
-    return response.status(200).json({message: 'Barang berhasil dihapus.'})
+    return response.status(200).json({
+      success: true,
+      message: `Barang ${item.id} berhasil dihapus.`
+    })
   }
 
   private async extracted(payload: any) {
