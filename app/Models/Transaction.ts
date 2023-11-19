@@ -39,6 +39,13 @@ export default class Transaction extends BaseModel {
   @hasMany(() => TransactionDetail)
   public details: HasMany<typeof TransactionDetail>
 
-  @belongsTo(() => User)
-  public user: BelongsTo<typeof User>
+  @belongsTo(() => User, {
+    foreignKey: 'employeeId',
+  })
+  public employee: BelongsTo<typeof User>
+
+  @belongsTo(() => User, {
+    foreignKey: 'customerId',
+  })
+  public customer: BelongsTo<typeof User>
 }

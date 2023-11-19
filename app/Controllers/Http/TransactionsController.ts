@@ -6,7 +6,11 @@ import Item from "App/Models/Item"
 import Database from '@ioc:Adonis/Lucid/Database'
 
 export default class TransactionsController {
-  public async index({request, response}: HttpContextContract) {
+  public async index({request, response, bouncer}: HttpContextContract) {
+    await bouncer
+      .with('TransactionPolicy')
+      .authorize('viewList')
+
     const page = request.input('page', 1)
     const limit = request.input('limit', 25)
 
@@ -14,14 +18,19 @@ export default class TransactionsController {
     const paymentMethod = request.input('payment_method', '')
     const type = request.input('type', '')
     const date = request.input('date', '')
-    const includeUser = request.input('include_user', 0)
+    const includeCustomer = request.input('include_customer', 0)
+    const includeEmployee = request.input('include_employee', 0)
 
     const query =
       Transaction.query()
         .preload('details')
 
-    if (+(includeUser) === 1) {
-      query.preload('user')
+    if (+(includeCustomer) === 1) {
+      query.preload('customer')
+    }
+
+    if (+(includeEmployee) === 1) {
+      query.preload('employee')
     }
 
     if (paymentMethod) {
@@ -44,7 +53,11 @@ export default class TransactionsController {
     return response.status(200).json(transactions.queryString(request.qs()))
   }
 
-  public async store({request, response, auth}: HttpContextContract) {
+  public async store({request, response, auth, bouncer}: HttpContextContract) {
+    await bouncer
+      .with('TransactionPolicy')
+      .authorize('create')
+
     const payload = await request.validate(TransactionValidator)
 
     await Database.transaction(async (trx) => {
@@ -92,9 +105,13 @@ export default class TransactionsController {
   }
 
   @bind()
-  public async show({response}: HttpContextContract, transaction: Transaction) {
+  public async show({response, bouncer}: HttpContextContract, transaction: Transaction) {
+    await bouncer
+      .with('TransactionPolicy')
+      .authorize('view')
+
     await transaction.load((loader) => {
-      loader.load('details').load('user')
+      loader.load('details').load('customer').load('employee')
     })
 
     return response.status(200).json(transaction)
