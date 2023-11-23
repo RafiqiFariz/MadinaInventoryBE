@@ -6,7 +6,7 @@ import UpdateUserValidator from "App/Validators/UpdateUserValidator"
 import Hash from "@ioc:Adonis/Core/Hash";
 
 export default class UsersController {
-  public async index({request, response, bouncer}: HttpContextContract) {
+  public async index({request, response, bouncer, auth}: HttpContextContract) {
     await bouncer
       .with('UserPolicy')
       .authorize('viewList')
@@ -14,7 +14,14 @@ export default class UsersController {
     const page = request.input('page', 1)
     const limit = 25
 
-    const users = await User.query().preload('role').paginate(page, limit)
+    const query = User.query().preload('role')
+
+    if(auth.user?.roleId === 2) {
+      query.whereNotIn('role_id', [1, 2])
+    }
+
+    const users = await query.paginate(page, limit)
+
     return response.status(200).json(users.queryString(request.qs()))
   }
 
